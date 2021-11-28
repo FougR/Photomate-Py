@@ -1,4 +1,6 @@
 import mysql.connector as mysql
+import shutil
+import tkinter.filedialog as FileSelector
 
 db = mysql.connect(
         host="localhost",
@@ -23,19 +25,31 @@ def login(pseudo, mdp):
         print("Mauvais Pseudo.")
 
 def signup(pseudo, mdp, mdp2):
+    global pseudonyme
     if mdp == mdp2:
         cursor.execute('insert into comptes (pseudo, mdp) values("'+pseudo+'","'+mdp+'");')
         print("Le compte a bien été créé.")
+        pseudonyme = pseudo
     else:
         print("Les mots de passe ne correspondent pas.")
 
-def post(url):
+def post(desc):
     global pseudonyme
     if pseudonyme != None:
         cursor.execute(f'select user_id from comptes where pseudo = "{pseudonyme}";')
         resultReq = cursor.fetchall()
-        cursor.execute(f"insert into images (author_id, post_img) values({resultReq[0][0]}, '{url}');")
+        cursor.execute(f'insert into images (author_id, post_desc) values ({resultReq[0][0]}, "{desc}");')
+        db.commit()
+        cursor.execute(f'select post_id from images where author_id = "{resultReq[0][0]}" and post_desc = "{desc}";')
+        resultReq = cursor.fetchall()
+        
+        photo = FileSelector.askopenfilename()
+        source = photo
+        destination = fr"T:\TG1\JOLYL\NSI\DBProject\Photomate-Py-main\Data\{resultReq[0][0]}.jpg"
+        shutil.copyfile(source, destination)
+        
         print("L'image a bien été postée.")
+        cursor.execute(f'select author_id from images where author_id = "{resultReq[0][0]}" and post_desc = "{desc}";')
     else: print("Il faut être connecté pour pouvoir utiliser cette fonctionalité.")
 
 def friendlink_generation():

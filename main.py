@@ -22,7 +22,7 @@ while running == True:
         args = action.split("-")
         if len(args) == 2:
             pm.post(args[1])
-        else: print("pm post -<url>")
+        else: print("pm post -<description>")
     elif action == "pm friendlink -g":
         pm.friendlink_generation()
     elif action.startswith("pm friendlink -a"):
