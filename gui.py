@@ -7,7 +7,7 @@ import mysql.connector as mysql
 db = mysql.connect(
         host="localhost",
         user="root",
-        password="",
+        password="eric",
         database="photomate")
 
 cursor = db.cursor()
@@ -17,9 +17,19 @@ mdp_Entry = None
 mdp2_Entry = None
 login_win = None
 home_win = None
+post_win = None
+me_statut = None
+me_win = None
+post_statut = None
+desc_Entry = None
+
 
 def me():
     global home_win
+    global me_statut
+    global me_win
+    me_statut = "Running"
+    
     home_win.destroy()
     me_win = tk.Tk()
     canvas = tk.Canvas(me_win, width=600, height=300)
@@ -30,7 +40,7 @@ def me():
     pseudo = str(reqResult[0][1])
 
     pseudo_label = tk.Label(me_win, text=pseudo, font="Raleway", height=2, width=15)
-    home_btn = tk.Button(me_win, text="Home", font="Raleway", bg="#20bebe", fg="white", height=2, width=10)
+    home_btn = tk.Button(me_win, text="Home", font="Raleway", bg="#20bebe", fg="white", height=2, width=10, command=home)
     friend_btn = tk.Button(me_win, text="Friends", font="Raleway", bg="#20bebe", fg="white", height=2, width=10)
     param_btn = tk.Button(me_win, text="Me", font="Raleway", bg="#20bebe", fg="white", height=2, width=10)
     param_btn.grid(column=2, row=3)
@@ -38,13 +48,54 @@ def me():
     friend_btn.grid(column=1, row=3)
     pseudo_label.grid(column=1, row=1)
 
+def post_sql():
+    global desc_Entry
+    
+    desc = desc_Entry.get()
+    pm.post(desc)
+    home()
+    
+
+def post():
+    global post_win
+    global home_win
+    global post_statut
+    global desc_Entry
+    post_statut = "Running"
+    home_win.destroy()
+    post_win = tk.Tk()
+    canvas = tk.Canvas(post_win, width=600, height=300)
+    canvas.grid(columnspan=2, rowspan=3)
+    
+    browse_btn = tk.Button(post_win, text="Browse", font="Raleway", bg="#20bebe", fg="white", height=2, width=10, command=post_sql)
+    desc_Label = tk.Label(post_win, text="Description ?", font="Raleway", height=2, width=10)
+    desc_Entry = tk.Entry(post_win, width=20)
+    return_btn = tk.Button(post_win, text="Return", font="Raleway", bg="#20bebe", fg="white", height=2, width=10, command=home)
+        
+    desc_Label.grid(column=1, row=0)
+    desc_Entry.grid(column=1, row=1)
+    return_btn.grid(column=0, row=2)
+    browse_btn.grid(column=2, row=2)
+    
+    post_win.mainloop()
+    
 def home():
     global home_win
+    global post_statut
+    global me_win
+    global post_win
+    global me_statut
+    
+    if post_statut == "Running":
+        post_win.destroy()
+    elif me_statut == "Running":
+        me_win.destroy()
+    
     home_win = tk.Tk()
     canvas = tk.Canvas(home_win, width=600, height=300)
     canvas.grid(columnspan=3, rowspan=3)
 
-    post_btn = tk.Button(home_win, text="Post", font="Raleway", bg="#20bebe", fg="white", height=2, width=10)
+    post_btn = tk.Button(home_win, text="Post", font="Raleway", bg="#20bebe", fg="white", height=2, width=10, command=post)
     home_btn = tk.Button(home_win, text="Home", font="Raleway", bg="#20bebe", fg="white", height=2, width=10)
     friend_btn = tk.Button(home_win, text="Friends", font="Raleway", bg="#20bebe", fg="white", height=2, width=10)
     user_btn = tk.Button(home_win, text="Me", font="Raleway", bg="#20bebe", fg="white", height=2, width=10, command=me)
