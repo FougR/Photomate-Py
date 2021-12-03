@@ -22,6 +22,7 @@ me_statut = None
 me_win = None
 post_statut = None
 desc_Entry = None
+friend_win = None
 
 
 def me():
@@ -56,6 +57,37 @@ def post_sql():
     home()
     
 
+def friend():
+    global home_win
+    global friend_win
+    global cusor
+    
+    home_win.destroy()
+    friend_win = tk.Tk()
+    canvas = tk.Canvas(post_win, width=600, height=300)
+    canvas.grid(columnspan=3, rowspan=4)
+    
+    cursor.execute(f"select * from amis where user_1 = {pm.id};")
+    reqResult = cursor.fetchall()
+    id_friend = reqResult[0][2]
+    cursor.execute(f"select pseudo from comptes where user_id = {id_friend};")
+    reqResult = cursor.fetchall()
+    pseudo_friend = reqResult[0][0]
+    print(pseudo_friend)
+    
+    friend_label = tk.Label(friend_win, text="Vous êtes amis avec :", font="Raleway", height=2, width=25)
+    friends_label = tk.Label(friend_win, text=pseudo_friend, font="Raleway", height=2, width=10)
+    post_btn = tk.Button(friend_win, text="Post", font="Raleway", bg="#20bebe", fg="white", height=2, width=10, command=post)
+    home_btn = tk.Button(friend_win, text="Home", font="Raleway", bg="#20bebe", fg="white", height=2, width=10)
+    friend_btn = tk.Button(friend_win, text="Friends", font="Raleway", bg="#20bebe", fg="white", height=2, width=10)
+    user_btn = tk.Button(friend_win, text="Me", font="Raleway", bg="#20bebe", fg="white", height=2, width=10, command=me)
+    user_btn.grid(column=2, row=3)
+    friends_label.grid(column=0, row=1)
+    post_btn.grid(column=2, row=0)
+    friend_label.grid(column=0, row=0)
+    home_btn.grid(column=0, row=3)
+    friend_btn.grid(column=1, row=3)
+
 def post():
     global post_win
     global home_win
@@ -80,6 +112,7 @@ def post():
     post_win.mainloop()
     
 def home():
+    global cursor
     global home_win
     global post_statut
     global me_win
@@ -87,22 +120,29 @@ def home():
     global me_statut
     
     if post_statut == "Running":
+        post_statut = None
         post_win.destroy()
     elif me_statut == "Running":
         me_win.destroy()
+        me_statut = None
+    
+    cursor.execute(f"select post_id from images;")
+    post_ids = cursor.fetchall()
+    
+    posts_nbr = len(post_ids)
     
     home_win = tk.Tk()
     canvas = tk.Canvas(home_win, width=600, height=300)
-    canvas.grid(columnspan=3, rowspan=3)
+    canvas.grid(columnspan=posts_nbr+3, rowspan=posts_nbr+3)
 
     post_btn = tk.Button(home_win, text="Post", font="Raleway", bg="#20bebe", fg="white", height=2, width=10, command=post)
     home_btn = tk.Button(home_win, text="Home", font="Raleway", bg="#20bebe", fg="white", height=2, width=10)
-    friend_btn = tk.Button(home_win, text="Friends", font="Raleway", bg="#20bebe", fg="white", height=2, width=10)
+    friend_btn = tk.Button(home_win, text="Friends", font="Raleway", bg="#20bebe", fg="white", height=2, width=10, command=friend)
     user_btn = tk.Button(home_win, text="Me", font="Raleway", bg="#20bebe", fg="white", height=2, width=10, command=me)
-    user_btn.grid(column=2, row=3)
-    post_btn.grid(column=2, row=0)
-    home_btn.grid(column=0, row=3)
-    friend_btn.grid(column=1, row=3)
+    user_btn.grid(column=posts_nbr+2, row=3)
+    post_btn.grid(column=posts_nbr+2, row=0)
+    home_btn.grid(column=posts_nbr+0, row=3)
+    friend_btn.grid(column=posts_nbr+1, row=3)
 
     home_win.mainloop()
 
